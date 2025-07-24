@@ -15,6 +15,31 @@ public class Reservation {
     private final LocalDateTime reservedAt;
     private Status status;
 
+    private static final Duration HOLD_DURATION = Duration.ofMinutes(5);
+
+    public Reservation(Long seatId, UUID userId, LocalDateTime reservedAt) {
+        this.seatId = seatId;
+        this.userId = userId;
+        this.reservedAt = reservedAt;
+        this.status = Status.RESERVED;
+    }
+
+    public boolean isExpired(LocalDateTime now) {
+        return now.isAfter(getExpiresAt());
+    }
+
+    public boolean updateStatus(LocalDateTime now) {
+        if (this.status == Status.RESERVED && isExpired(now)) {
+            this.status = Status.EXPIRED;
+            return true;
+        }
+        return false;
+    }
+
+    public LocalDateTime getExpiresAt() {
+        return reservedAt.plus(HOLD_DURATION);
+    }
+
     public Status getStatus() {
         return status;
     }
