@@ -11,6 +11,6 @@ public record SeatInfoResponse(@Schema(description = "좌석 ID", example = "101
                                @Schema(description = "좌석 번호", example = "A1")
                                  String seatLabel,
 
-                               @Schema(description = "좌석 상태 (AVAILABLE | RESERVED)", example = "AVAILABLE")
+                               @Schema(description = "좌석 상태 (AVAILABLE | RESERVED)", example = "AVAILABLE", allowableValues = {"AVAILABLE", "RESERVED"})
                                  String seatStatus) {
 }
