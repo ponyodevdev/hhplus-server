@@ -31,6 +31,21 @@ class ReservationServiceTest {
 
     final LocalDateTime fixedNow = LocalDateTime.of(2025, 7, 23, 12, 0);
 
+    @Test
+    @DisplayName("좌석이 예약되지 않은 경우 정상적으로 예약된다")
+    void reserveSeat_success() {
+        // given
+        Long seatId = 1L;
+        UUID userId = UUID.randomUUID();
+
+        when(reservationPort.findBySeatId(seatId)).thenReturn(Optional.empty());
+
+        // when
+        reservationService.reserveSeat(seatId, userId, fixedNow);
+
+        // then
+        verify(reservationPort).save(any(Reservation.class));
+    }
 
     @Test
     @DisplayName("좌석이 이미 예약되어 있고 만료되지 않았다면 예외 발생")
@@ -46,6 +61,41 @@ class ReservationServiceTest {
         assertThatThrownBy(() -> reservationService.reserveSeat(seatId, userId, fixedNow))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("이미 예약된 좌석입니다.");
+    }
+
+    @Test
+    @DisplayName("예약된 좌석이 만료되었으면 새로 예약할 수 있다 (5분 경과)")
+    void reserveSeat_expired_thenAllow() {
+        // given
+        Long seatId = 1L;
+        UUID userId = UUID.randomUUID();
+
+        // 기존 예약이 10분 전 = 5분 홀드가 끝난 상태
+        Reservation expired = new Reservation(seatId, UUID.randomUUID(), fixedNow.minusMinutes(10));
+        when(reservationPort.findBySeatId(seatId)).thenReturn(Optional.of(expired));
+
+        // when
+        reservationService.reserveSeat(seatId, userId, fixedNow);
+
+        // then
+        verify(reservationPort).save(any(Reservation.class));
+    }
+
+    @Test
+    @DisplayName("좌석 예약 상태를 조회하면 만료 여부에 따라 상태가 업데이트되고 저장된다")
+    void getReservationStatus_andUpdateIfExpired() {
+        // given
+        Long seatId = 1L;
+        Reservation reservation = new Reservation(seatId, UUID.randomUUID(), fixedNow.minusMinutes(6)); // expired
+
+        when(reservationPort.findBySeatId(seatId)).thenReturn(Optional.of(reservation));
+
+        // when
+        Reservation result = reservationService.getReservationStatus(seatId, fixedNow);
+
+        // then
+        assertThat(result.getStatus()).isEqualTo(Reservation.Status.EXPIRED);
+        verify(reservationPort).save(reservation);
     }
 
     @Test

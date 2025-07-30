@@ -14,4 +14,29 @@ public class ReservationService implements ReservationUseCase {
     public ReservationService(ReservationPort reservationPort) {
         this.reservationPort = reservationPort;
     }
+
+    @Override
+    public void reserveSeat(Long seatId, UUID userId, LocalDateTime now) {
+        reservationPort.findBySeatId(seatId).ifPresent(existing -> {
+            if (!existing.isExpired(now)) {
+                throw new IllegalStateException("이미 예약된 좌석입니다.");
+            }
+        });
+
+        Reservation reservation = new Reservation(seatId, userId, now);
+        reservationPort.save(reservation);
+    }
+
+    @Override
+    public Reservation getReservationStatus(Long seatId, LocalDateTime now) {
+        Reservation reservation = reservationPort.findBySeatId(seatId)
+                .orElseThrow(() -> new NoSuchElementException("예약 정보를 찾을 수 없습니다."));
+
+        boolean updated = reservation.updateStatus(now);
+        if (updated) {
+            reservationPort.save(reservation);
+        }
+
+        return reservation;
+    }
 }
