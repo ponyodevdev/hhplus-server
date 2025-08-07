@@ -27,7 +27,7 @@ class SeatQueryServiceTest {
     SeatPort seatPort;
 
     @InjectMocks
-    SeatQueryService seatQueryService;
+    SeatQueryDomainService seatQueryService;
 
     Clock fixedClock;
     LocalDateTime now;
@@ -36,7 +36,7 @@ class SeatQueryServiceTest {
     void setUp() {
         now = LocalDateTime.of(2025, 7, 24, 12, 0);
         fixedClock = Clock.fixed(now.atZone(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
-        seatQueryService = new SeatQueryService(seatPort, fixedClock);
+        seatQueryService = new SeatQueryDomainService(seatPort, fixedClock);
     }
 
     @Test

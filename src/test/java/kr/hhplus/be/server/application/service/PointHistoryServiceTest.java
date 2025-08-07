@@ -30,7 +30,7 @@ public class PointHistoryServiceTest {
         // then
         Assertions.assertThat(histories).hasSize(3);
         Assertions.assertThat(histories)
-                .extracting(PointHistory::type)
+                .extracting(PointHistory::getType)
                 .containsExactlyInAnyOrder(TransactionType.CHARGE, TransactionType.USE, TransactionType.EXPIRE);
     }
 

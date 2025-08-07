@@ -9,4 +9,6 @@ public interface SeatPort {
     Optional<Seat> findById(Long seatId);
     List<Seat> findAllByOptionId(Long optionId);
     void save(Seat seat);
+    Optional<Seat> findWithLockBySeatId(Long seatId);
+
 }

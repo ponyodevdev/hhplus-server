@@ -19,14 +19,14 @@ import java.util.List;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ConcertOptionServiceTest {
+class ConcertOptionDomainServiceTest {
 
 
     @Mock
     ConcertOptionPort concertOptionPort;
 
     @InjectMocks
-    ConcertOptionService concertOptionService;
+    ConcertOptionDomainService concertOptionDomainService;
 
     LocalDateTime fixedNow = LocalDateTime.of(2025, 7, 23, 12, 0);
 
@@ -40,7 +40,7 @@ class ConcertOptionServiceTest {
         when(concertOptionPort.findAll()).thenReturn(List.of(futureOption, pastOption));
 
         // when
-        List<ConcertOptionResponse> result = concertOptionService.getReservableConcertOptions(fixedNow);
+        List<ConcertOptionResponse> result = concertOptionDomainService.getReservableOptions(fixedNow);
 
         // then
         assertThat(result).hasSize(1);
@@ -56,7 +56,7 @@ class ConcertOptionServiceTest {
         when(concertOptionPort.findAll()).thenReturn(List.of(pastOption));
 
         // when
-        List<ConcertOptionResponse> result = concertOptionService.getReservableConcertOptions(fixedNow);
+        List<ConcertOptionResponse> result = concertOptionDomainService.getReservableOptions(fixedNow);
 
         // then
         assertThat(result).isEmpty();

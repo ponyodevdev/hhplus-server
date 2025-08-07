@@ -18,7 +18,7 @@ public class InMemoryPointHistoryPort implements PointHistoryPort {
     @Override
     public List<PointHistory> selectAllByUserId(long userId) {
         return histories.stream()
-                .filter(h -> h.userId() == userId)
+                .filter(h -> h.getUserId() == userId)
                 .toList();
     }
 }

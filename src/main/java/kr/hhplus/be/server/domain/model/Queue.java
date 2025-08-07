@@ -1,16 +1,31 @@
 package kr.hhplus.be.server.domain.model;
 
+import jakarta.persistence.*;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Entity
+@Table(name = "queue")
 public class Queue {
 
-    private final UUID tokenId;
-    private final UUID userId;
-    private final LocalDateTime issuedAt;
-    private final LocalDateTime expiresAt;
+    @Id
+    @Column(columnDefinition = "BINARY(16)")
+    private UUID tokenId;
 
+    @Column(nullable = false, columnDefinition = "BINARY(16)")
+    private UUID userId;
+
+    @Column(nullable = false)
+    private LocalDateTime issuedAt;
+
+    @Column(nullable = false)
+    private LocalDateTime expiresAt;
+
+    protected Queue() {
+        // JPA 기본 생성자
+    }
 
     public Queue(UUID tokenId, UUID userId, LocalDateTime issuedAt, LocalDateTime expiresAt) {
         this.tokenId = tokenId;
@@ -23,21 +38,15 @@ public class Queue {
         this(tokenId, userId, issuedAt, issuedAt.plus(ttl));
     }
 
-    public boolean isExpired(LocalDateTime now){
+    public boolean isExpired(LocalDateTime now) {
         return now.isAfter(expiresAt);
     }
 
-    public Duration remainingWaitTime(LocalDateTime now){
+    public Duration remainingWaitTime(LocalDateTime now) {
         return Duration.between(now, expiresAt).isNegative() ? Duration.ZERO : Duration.between(now, expiresAt);
     }
 
-    public LocalDateTime getExpiresAt(){
-        return expiresAt;
-    }
 
-    public LocalDateTime getIssuedAt(){
-        return issuedAt;
-    }
 
     public UUID getTokenId() {
         return tokenId;
@@ -45,5 +54,13 @@ public class Queue {
 
     public UUID getUserId() {
         return userId;
+    }
+
+    public LocalDateTime getIssuedAt() {
+        return issuedAt;
+    }
+
+    public LocalDateTime getExpiresAt() {
+        return expiresAt;
     }
 }

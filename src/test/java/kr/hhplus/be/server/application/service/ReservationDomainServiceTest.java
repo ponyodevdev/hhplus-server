@@ -20,14 +20,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class ReservationServiceTest {
+class ReservationDomainServiceTest {
 
 
     @Mock
     ReservationPort reservationPort;
 
     @InjectMocks
-    ReservationService reservationService;
+    ReservationDomainService reservationDomainService;
 
     final LocalDateTime fixedNow = LocalDateTime.of(2025, 7, 23, 12, 0);
 
@@ -41,7 +41,7 @@ class ReservationServiceTest {
         when(reservationPort.findBySeatId(seatId)).thenReturn(Optional.empty());
 
         // when
-        reservationService.reserveSeat(seatId, userId, fixedNow);
+        reservationDomainService.reserve(seatId, userId, fixedNow);
 
         // then
         verify(reservationPort).save(any(Reservation.class));
@@ -58,7 +58,7 @@ class ReservationServiceTest {
         when(reservationPort.findBySeatId(seatId)).thenReturn(Optional.of(existing));
 
         // expect
-        assertThatThrownBy(() -> reservationService.reserveSeat(seatId, userId, fixedNow))
+        assertThatThrownBy(() -> reservationDomainService.reserve(seatId, userId, fixedNow))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("이미 예약된 좌석입니다.");
     }
@@ -75,7 +75,7 @@ class ReservationServiceTest {
         when(reservationPort.findBySeatId(seatId)).thenReturn(Optional.of(expired));
 
         // when
-        reservationService.reserveSeat(seatId, userId, fixedNow);
+        reservationDomainService.reserve(seatId, userId, fixedNow);
 
         // then
         verify(reservationPort).save(any(Reservation.class));
@@ -91,7 +91,7 @@ class ReservationServiceTest {
         when(reservationPort.findBySeatId(seatId)).thenReturn(Optional.of(reservation));
 
         // when
-        Reservation result = reservationService.getReservationStatus(seatId, fixedNow);
+        Reservation result = reservationDomainService.findAndUpdateStatus(seatId, fixedNow);
 
         // then
         assertThat(result.getStatus()).isEqualTo(Reservation.Status.EXPIRED);
@@ -106,7 +106,7 @@ class ReservationServiceTest {
         when(reservationPort.findBySeatId(seatId)).thenReturn(Optional.empty());
 
         // expect
-        assertThatThrownBy(() -> reservationService.getReservationStatus(seatId, fixedNow))
+        assertThatThrownBy(() -> reservationDomainService.findAndUpdateStatus(seatId, fixedNow))
                 .isInstanceOf(NoSuchElementException.class)
                 .hasMessage("예약 정보를 찾을 수 없습니다.");
     }

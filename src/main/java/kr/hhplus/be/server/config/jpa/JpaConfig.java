@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.config.jpa;
 
+import jakarta.persistence.EntityManagerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
@@ -9,11 +10,10 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 @EnableJpaAuditing
-@EnableJpaRepositories
 public class JpaConfig {
 
     @Bean
-    public PlatformTransactionManager transactionManager() {
-        return new JpaTransactionManager();
+    public PlatformTransactionManager transactionManager(EntityManagerFactory factory) {
+        return new JpaTransactionManager(factory);
     }
 }

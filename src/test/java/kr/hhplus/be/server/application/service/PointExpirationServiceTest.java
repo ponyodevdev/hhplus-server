@@ -45,7 +45,7 @@ public class PointExpirationServiceTest {
         Assertions.assertThat(paymentPort.selectById(userId).point()).isEqualTo(2000);
 
         Assertions.assertThat(pointHistoryPort.selectAllByUserId(userId))
-                .anyMatch(h -> h.type() == TransactionType.EXPIRE && h.amount() == 5000);
+                .anyMatch(h -> h.getType() == TransactionType.EXPIRE && h.getAmount() == 5000);
     }
 
     @Test
@@ -66,6 +66,6 @@ public class PointExpirationServiceTest {
         Assertions.assertThat(paymentPort.selectById(userId).point()).isEqualTo(3000);
 
         Assertions.assertThat(pointHistoryPort.selectAllByUserId(userId))
-                .noneMatch(h -> h.type() == TransactionType.EXPIRE);
+                .noneMatch(h -> h.getType() == TransactionType.EXPIRE);
     }
 }
