@@ -1,11 +1,31 @@
 package kr.hhplus.be.server.domain.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "point_history")
 public class PointHistory {
 
-    private final long userId;
-    private final long amount;
-    private final TransactionType type;
-    private final long timestamp; // milliseconds
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private long userId;
+
+    @Column(nullable = false)
+    private long amount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TransactionType type;
+
+    @Column(nullable = false)
+    private long timestamp; // milliseconds
+
+    protected PointHistory() {
+        // JPA 기본 생성자
+    }
 
     public PointHistory(long userId, long amount, TransactionType type, long timestamp) {
         this.userId = userId;
@@ -15,19 +35,23 @@ public class PointHistory {
     }
 
     // getter methods
-    public long userId() {
+    public long getUserId() {
         return userId;
     }
 
-    public long amount() {
+    public long getAmount() {
         return amount;
     }
 
-    public TransactionType type() {
+    public TransactionType getType() {
         return type;
     }
 
-    public long timestamp() {
+    public long getTimestamp() {
         return timestamp;
+    }
+
+    public Long getId() {
+        return id;
     }
 }

@@ -1,13 +1,30 @@
 package kr.hhplus.be.server.domain.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
 import java.util.Objects;
 
+@Entity
+@Table(name = "concert")
 public class Concert {
 
-    private final Long id;
-    private final String title;
-    private final String description;
-    private final boolean active;
+    @Id
+    private Long id;
+
+    @Column(nullable = false)
+    private String title;
+
+    private String description;
+
+    @Column(nullable = false)
+    private boolean active;
+
+    protected Concert() {
+        // JPA 기본 생성자 (무조건 필요)
+    }
 
     public Concert(Long id, String title, String description, boolean active) {
         if (Objects.isNull(title) || title.isBlank()) {
@@ -34,6 +51,4 @@ public class Concert {
     public String getDescription() {
         return description;
     }
-
-
 }

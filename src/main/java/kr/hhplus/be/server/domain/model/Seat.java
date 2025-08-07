@@ -1,15 +1,28 @@
 package kr.hhplus.be.server.domain.model;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Entity
+@Table(name = "seat")
 public class Seat {
 
-    private final Long seatId;
-    private final Long optionId;
-    private final String seatLabel;
+    @Id
+    private Long seatId;
+
+    private Long optionId;
+
+    private String seatLabel;
+
+    @Column(columnDefinition = "BINARY(16)")
     private UUID ownerId;
+
     private LocalDateTime expiresAt;
+
+    protected Seat() {
+        // JPA 기본 생성자
+    }
 
     public Seat(Long seatId, Long optionId, String seatLabel) {
         this.seatId = seatId;
@@ -33,7 +46,6 @@ public class Seat {
         return ownerId != null && !isExpired(now);
     }
 
-    // getter
     public Long getSeatId() {
         return seatId;
     }

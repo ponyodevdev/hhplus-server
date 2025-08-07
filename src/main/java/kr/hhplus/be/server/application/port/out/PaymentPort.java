@@ -6,6 +6,7 @@ public interface PaymentPort {
     boolean existsById(long userId);
     Payment findById(long userId);
     long findPointByUserId(long userId);
-    Payment selectById(long userId);
     void insertOrUpdate(long userId, long point);
+    Payment selectById(long userId);
+    void save(Payment payment);
 }

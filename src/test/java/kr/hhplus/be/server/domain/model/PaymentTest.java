@@ -18,10 +18,9 @@ public class PaymentTest {
     @DisplayName("100포인트를 사용하면 정상적으로 사용된다.")
     @Test
     void useValidPoint(){
-        int amountToUse = 100;
-        int currentBalance = 1000;
-        payment.usePoint(amountToUse, currentBalance);
-        Assertions.assertEquals(100, payment.getUsedPoint());
+        Payment payment = new Payment(1L, 1000L);   // currentPoint 초기화
+        payment.usePoint(100L);  // currentPoint는 내부에 이미 있으니까 한 개만 넘겨
+        Assertions.assertEquals(100L, payment.getUsedPoint());
 
     }
 
@@ -51,8 +50,9 @@ public class PaymentTest {
 
 
     private void assertUseThrows(int amount, String expectedMessage){
-        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, ()->{
-            payment.usePoint(amount, 1000);
+        Payment payment = new Payment(1L,1000L);  // 초기화 필요!
+        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            payment.usePoint(amount);
         });
         Assertions.assertEquals(expectedMessage, exception.getMessage());
     }

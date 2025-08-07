@@ -30,7 +30,7 @@ class QueueTokenServiceTest {
     QueuePort queuePort;
 
     @InjectMocks
-    QueueTokenService queueTokenService;
+    QueueTokenDomainService queueTokenService;
 
     LocalDateTime fixedNow = LocalDateTime.of(2025, 7, 23, 12, 0);
     Duration tokenTTL = Duration.ofMinutes(10);
@@ -39,7 +39,7 @@ class QueueTokenServiceTest {
     @BeforeEach
     void setUp() {
         fixedClock = Clock.fixed(fixedNow.atZone(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
-        queueTokenService = new QueueTokenService(queuePort, tokenTTL, fixedClock);
+        queueTokenService = new QueueTokenDomainService(queuePort);
     }
 
     @Test
@@ -49,7 +49,7 @@ class QueueTokenServiceTest {
         UUID userId = UUID.randomUUID();
 
         // when
-        queueTokenService.issueToken(userId);
+        queueTokenService.issueToken(userId, fixedNow, tokenTTL);
 
         // then
         ArgumentCaptor<Queue> captor = ArgumentCaptor.forClass(Queue.class);

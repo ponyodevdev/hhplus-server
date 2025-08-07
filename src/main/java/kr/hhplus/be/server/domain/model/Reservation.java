@@ -1,21 +1,42 @@
 package kr.hhplus.be.server.domain.model;
 
+import jakarta.persistence.*;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Entity
+@Table(name = "reservation")
 public class Reservation {
 
     public enum Status {
         RESERVED, CONFIRMED, EXPIRED
     }
 
-    private final Long seatId;
-    private final UUID userId;
-    private final LocalDateTime reservedAt;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private Long seatId;
+
+    @Column(nullable = false, columnDefinition = "BINARY(16)")
+    private UUID userId;
+
+    @Column(nullable = false)
+    private LocalDateTime reservedAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Status status;
 
+    @Transient
     private static final Duration HOLD_DURATION = Duration.ofMinutes(5);
+
+    protected Reservation() {
+        // JPA 기본 생성자
+    }
 
     public Reservation(Long seatId, UUID userId, LocalDateTime reservedAt) {
         this.seatId = seatId;
@@ -54,5 +75,9 @@ public class Reservation {
 
     public UUID getUserId() {
         return userId;
+    }
+
+    public Long getId() {
+        return id;
     }
 }

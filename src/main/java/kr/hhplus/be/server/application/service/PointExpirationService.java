@@ -25,9 +25,9 @@ public class PointExpirationService {
         for (Long userId : userIds) {
             List<PointHistory> histories = pointHistoryPort.selectAllByUserId(userId);
             long expiredAmount = histories.stream()
-                    .filter(h -> h.type() == TransactionType.CHARGE)
-                    .filter(h -> isExpired(h.timestamp(), now))
-                    .mapToLong(PointHistory::amount)
+                    .filter(h -> h.getType() == TransactionType.CHARGE)
+                    .filter(h -> isExpired(h.getTimestamp(), now))
+                    .mapToLong(PointHistory::getAmount)
                     .sum();
 
             if (expiredAmount > 0) {
