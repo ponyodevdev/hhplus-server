@@ -86,5 +86,5 @@ concert:options:{concertId}
 
 ## 8. 첨부
 **JMeter 테스트 결과 스크린샷**  
-![CacheTestResult.PNG](../image/CacheTestResult.PNG)
+![CacheTestResult.PNG](../image/CacheTestResult.png)
 
