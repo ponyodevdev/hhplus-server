@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface ConcertOptionPort {
     List<ConcertOption> findAll(); // 모든 공연 일정 엔티티 조회
+    List<ConcertOption> findByConcertId(long concertId);
 }

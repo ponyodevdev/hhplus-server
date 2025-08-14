@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,4 +17,13 @@ public interface SeatJpaRepository extends JpaRepository<Seat, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT s FROM Seat s WHERE s.seatId = :seatId")
     Optional<Seat> findWithLockBySeatId(@Param("seatId") Long seatId);
+
+    @Query("""
+        SELECT COUNT(s) FROM Seat s
+        WHERE s.optionId = :optionId
+          AND (s.ownerId IS NULL OR s.expiresAt < :now)
+    """)
+    long countAvailableByOption(@Param("optionId") Long optionId,
+                                @Param("now") LocalDateTime now);
+
 }

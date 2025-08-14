@@ -28,4 +28,12 @@ public class SeatService implements SeatUseCase {
         seat.assignTo(userId, LocalDateTime.now(clock));
         seatPort.save(seat);
     }
+
+    @Override
+    public void cancelSeat(Long seatId) {
+        Seat seat = seatPort.findById(seatId)
+                .orElseThrow(() -> new NoSuchElementException("seat not found: " + seatId));
+        seat.cancel();
+        seatPort.save(seat);
+    }
 }

@@ -27,6 +27,8 @@ public class Queue {
         // JPA 기본 생성자
     }
 
+
+
     public Queue(UUID tokenId, UUID userId, LocalDateTime issuedAt, LocalDateTime expiresAt) {
         this.tokenId = tokenId;
         this.userId = userId;
