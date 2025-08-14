@@ -7,4 +7,5 @@ import java.util.UUID;
 
 public interface SeatUseCase {
     void assignSeat(Long seatId, UUID userId);
+    void cancelSeat(Long seatId);
 }

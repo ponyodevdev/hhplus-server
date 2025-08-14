@@ -20,4 +20,9 @@ public class ConcertOptionAdapter implements ConcertOptionPort {
     public List<ConcertOption> findAll() {
         return concertOptionJpaRepository.findAll();
     }
+
+    @Override
+    public List<ConcertOption> findByConcertId(long concertId){
+        return concertOptionJpaRepository.findByConcertId(concertId);
+    }
 }

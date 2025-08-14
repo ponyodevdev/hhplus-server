@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.application.port.in;
 
+import kr.hhplus.be.server.application.port.in.aop.DistributedLock;
 import kr.hhplus.be.server.application.service.ReservationDomainService;
 import kr.hhplus.be.server.domain.model.Reservation;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ public class ReservationUseCaseImpl implements ReservationUseCase {
     }
 
     @Override
+    @DistributedLock(key = "'seat:' + #seatId", waitTime = 1, leaseTime = 3)
     public void reserveSeat(Long seatId, UUID userId, LocalDateTime now) {
         reservationDomainService.reserve(seatId, userId, now);
     }

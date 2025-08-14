@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.application.port.in;
 
+import kr.hhplus.be.server.application.port.in.aop.DistributedLock;
 import kr.hhplus.be.server.application.port.out.QueuePort;
 import kr.hhplus.be.server.application.service.QueueTokenDomainService;
 import kr.hhplus.be.server.domain.model.Queue;
@@ -28,24 +29,21 @@ public class QueueTokenUseCaseImpl implements QueueTokenUseCase {
         this.queuePort = queuePort;
     }
 
-    /*@Override
-    public UUID issueToken(UUID userId) {
-        return domainService.issueToken(userId, LocalDateTime.now(clock), tokenTTL);
-    }*/
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
+    @DistributedLock(
+            key = "'queue:token:' + #userId",
+            waitTime = 5,
+            leaseTime = -1,
+            fair = true
+    )
     public UUID issueToken(UUID userId) {
         LocalDateTime now = LocalDateTime.now(clock);
-
-        // 1. 락을 걸고 유효 토큰 존재 여부 확인
         Optional<Queue> existing = queuePort.findByUserIdWithLock(userId);
 
         if (existing.isPresent() && existing.get().getExpiresAt().isAfter(now)) {
-            // 유효한 토큰이 이미 존재하면 그걸 재사용
             return existing.get().getTokenId();
         }
 
-        // 없으면 새로 발급
         UUID tokenId = domainService.issueToken(userId, now, tokenTTL);
         Queue queue = new Queue(tokenId, userId, now, now.plus(tokenTTL));
 
@@ -58,7 +56,7 @@ public class QueueTokenUseCaseImpl implements QueueTokenUseCase {
         return domainService.getRemainingTime(tokenId, now);
     }
 
-    // 테스트용 getter
+    // 테스트용
     public Queue getTokenStatus(UUID tokenId, LocalDateTime now) {
         return domainService.getTokenStatus(tokenId, now);
     }

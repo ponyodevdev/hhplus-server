@@ -65,4 +65,10 @@ public class Seat {
     public LocalDateTime getExpiresAt() {
         return expiresAt;
     }
+
+    public void cancel() {
+        // 이미 비어 있으면 그대로 (idempotent)
+        this.ownerId = null;
+        this.expiresAt = null;
+    }
 }
