@@ -5,6 +5,7 @@ import kr.hhplus.be.server.domain.model.Seat;
 import kr.hhplus.be.server.infrastructure.persistence.SeatJpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,5 +36,10 @@ public class SeatAdapter implements SeatPort {
     @Override
     public Optional<Seat> findWithLockBySeatId(Long seatId) {
         return seatJpaRepository.findWithLockBySeatId(seatId);
+    }
+
+    @Override
+    public long countAvailableByOption(Long optionId, LocalDateTime now) {
+        return seatJpaRepository.countAvailableByOption(optionId, now);
     }
 }

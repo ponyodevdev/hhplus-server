@@ -2,6 +2,7 @@ package kr.hhplus.be.server.application.port.out;
 
 import kr.hhplus.be.server.domain.model.Seat;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,5 +11,6 @@ public interface SeatPort {
     List<Seat> findAllByOptionId(Long optionId);
     void save(Seat seat);
     Optional<Seat> findWithLockBySeatId(Long seatId);
+    long countAvailableByOption(Long optionId, LocalDateTime now);
 
 }
