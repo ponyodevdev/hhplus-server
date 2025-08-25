@@ -1,56 +1,44 @@
 package kr.hhplus.be.server.application.port.in.aop;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.TimeUnit;
+
+@Slf4j
 @Aspect
 @Component
 @RequiredArgsConstructor
 public class DistributedLockAop {
+    private final RedissonClient redissonClient;
 
-    private final RedissonClient redisson;
-    private final TxProxy txProxy;
+
 
     @Around("@annotation(distributedLock)")
     public Object lock(ProceedingJoinPoint joinPoint, DistributedLock distributedLock) throws Throwable {
-        MethodSignature sig = (MethodSignature) joinPoint.getSignature();
-        EvaluationContext context = new StandardEvaluationContext();
-        String[] paramNames = sig.getParameterNames();
-        Object[] args = joinPoint.getArgs();
-        for (int i = 0; i < paramNames.length; i++) {
-            context.setVariable(paramNames[i], args[i]);
-        }
-        ExpressionParser parser = new SpelExpressionParser();
-        String key = parser.parseExpression(distributedLock.key()).getValue(context, String.class);
-
-        RLock lock = distributedLock.fair()
-                ? redisson.getFairLock(key)
-                : redisson.getLock(key);
+        String key = "seat:" + joinPoint.getArgs()[0]; // seatId 기준
+        RLock lock = redissonClient.getLock(key);
 
         boolean locked = false;
         try {
-            locked = lock.tryLock(
-                    distributedLock.waitTime(),
-                    distributedLock.leaseTime(),
-                    distributedLock.timeUnit()
-            );
-            if (!locked) {
-                throw new IllegalStateException("Lock not acquired: " + key);
-            }
-            return txProxy.proceed(joinPoint);
+            locked = lock.tryLock(distributedLock.waitTime(), distributedLock.leaseTime(), TimeUnit.SECONDS);
+            if (!locked) throw new IllegalStateException("Lock not acquired: " + key);
+
+            log.info("LOCK ACQUIRED: {}", key);
+            Object result = joinPoint.proceed();
+            log.info("TX EXECUTED: {}", key);
+            return result;
+
         } finally {
             if (locked && lock.isHeldByCurrentThread()) {
                 lock.unlock();
+                log.info("LOCK RELEASED: {}", key);
             }
         }
     }
