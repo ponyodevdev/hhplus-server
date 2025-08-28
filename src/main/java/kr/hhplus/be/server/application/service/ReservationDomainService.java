@@ -3,8 +3,10 @@ package kr.hhplus.be.server.application.service;
 
 import kr.hhplus.be.server.application.port.out.ReservationPort;
 import kr.hhplus.be.server.application.port.out.SeatPort;
+import kr.hhplus.be.server.domain.event.ReservationConfirmedEvent;
 import kr.hhplus.be.server.domain.model.Reservation;
 import kr.hhplus.be.server.domain.model.Seat;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,11 +20,16 @@ public class ReservationDomainService {
 
     private final SeatPort seatPort;
     private final ReservationPort reservationPort;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public ReservationDomainService(SeatPort seatPort, ReservationPort reservationPort) {
+    public ReservationDomainService(SeatPort seatPort,
+                                    ReservationPort reservationPort,
+                                    ApplicationEventPublisher eventPublisher) {
         this.seatPort = seatPort;
         this.reservationPort = reservationPort;
+        this.eventPublisher = eventPublisher;
     }
+
 
     @Transactional
     public void reserve(Long seatId, UUID userId, LocalDateTime now) {
@@ -37,8 +44,20 @@ public class ReservationDomainService {
 
         // 좌석 배정
         seat.assignTo(userId, now);
-        seatPort.save(seat); // 업데이트 반영
+        seatPort.save(seat);
         reservationPort.save(new Reservation(seatId, userId, now)); // 예약 테이블 저장
+
+        // 예약 저장
+        Reservation reservation = new Reservation(seatId, userId, now);
+        reservationPort.save(reservation);
+
+        // 이벤트 발행 (DB 커밋 후 핸들러에서 처리)
+        eventPublisher.publishEvent(new ReservationConfirmedEvent(
+                reservation.getId(),
+                seatId,
+                userId,
+                now
+        ));
     }
 
     public Reservation findAndUpdateStatus(Long seatId, LocalDateTime now) {
